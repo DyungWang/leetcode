@@ -6,7 +6,7 @@ using namespace std;
 class Solution {
  public:
   int totalNQueens(int n) {
-    vector<int> place(n, -1);  // the queue in i row place in place[i] col.
+    vector<int> place(n, -1);  // the queen in i row place in place[i] col.
     return dfs(place, 0);
   }
  
@@ -33,8 +33,8 @@ class Solution {
     return true;
   }
 
-  // queue1 in point (a, b)
-  // queue2 in point (c, d)
+  // queen1 in point (a, b)
+  // queen2 in point (c, d)
   // check if valid.
   bool isValid(int a, int b, int c, int d) {
     if (b == d) 
