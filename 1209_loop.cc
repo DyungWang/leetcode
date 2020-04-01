@@ -7,22 +7,27 @@ using namespace std;
 class Solution {
  public:
   string removeDuplicates(string str, int k) {
-    std::string res;
-    if (str.empty()) 
-      return res;
-    size_t i = 0, j = 0;
-    while (j < str.size()) {
-      if (str[j] != str[i]) {
-        res.insert(res.end(), str.begin()+i, str.begin()+j);
-        i = j;
+    vector<size_t> stk;
+    vector<size_t> cnt;
+    for (size_t i = 0; i < str.size(); ++i) {
+      if (stk.empty() || str[stk.back()] != str[i]) {
+        stk.push_back(i);
+        cnt.push_back(1);
+        continue;
       }
-      ++j;
-      if (j-i == k) i = j;
+      stk.push_back(i);
+      cnt.push_back(cnt.back()+1);
+      if (cnt.back() < k)
+        continue;
+      for (int j = 0; j < k; ++j) {
+        stk.pop_back();
+        cnt.pop_back();
+      }
     }
-    if (i != j) res.insert(res.end(), str.begin()+i, str.begin()+j);
-    if (res == str) 
-      return res;
-    return removeDuplicates(res, k);
+
+    std::string res;
+    for (auto i: stk) res.push_back(str[i]);
+    return res;
   }
 };
 
