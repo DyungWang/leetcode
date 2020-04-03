@@ -8,18 +8,25 @@ using namespace std;
 class Solution {
  public:
   int minInsertions(string s) {
-    vector<vector<int>> dis(s.size()+1, vector<int>(s.size()+1, 0));
-    string r = s; reverse(r.begin(), r.end());
+    // 使用 cnt[i][j] 来保存从 s[0:i], reverse(s[j::]) 中最多顺序相同的元素个数
+    // 显然对于 cnt[i][j]来说，有：
+    // s[i-1] == s[j]：
+    //    cnt[i][j] = max(cnt[i-1][j+1]+1, cnt[i-1][j], cnt[i][j+1])
+    // s[i-1] != s[j]:
+    //    cnt[i][j] = max(cnt[i-1][j+1], cnt[i-1][j], cnt[i][j+1])
+    vector<vector<int>> cnt(s.size()+1, vector<int>(s.size()+2, 0));
     int res = INT32_MAX;
-    for (int i = s.size()-1; i >= 0; --i) {
-      for (int j = s.size()-1; j >= 0; --j) {
-        dis[i][j] = dis[i+1][j+1] + (s[i] == r[j]);
-        dis[i][j] = max(dis[i][j], max(dis[i+1][j], dis[i][j+1]));
+    for (int i = 1; i <= s.size(); ++i) {
+      for (int j = s.size()-1; j >= i; --j) {
+        int d1 = cnt[i-1][j  ];
+        int d2 = cnt[i  ][j+1];
+        int d3 = cnt[i-1][j+1] + (s[i-1] == s[j]);
+        cnt[i][j] = max(d1, max(d2, d3));
       }
-      // 0 -> i, i   -> len  => i + j = len - 1
-      // 0 -> i, i+1 -> len  => i + j = len
-      res = min(res, (int)s.size() + 1 - dis[i][s.size()-1-i]*2); // two same.
-      res = min(res, (int)s.size() - dis[i][s.size()-i]*2);
+      // s[0:i], reserve(s[i  ::]) 0->i-1, i   -> len
+      // s[0:i], reserve(s[i+1::]) 0->i-1, i+1 -> len
+      res = min(res, (int)s.size() - 2 * cnt[i][i  ]    );
+      res = min(res, (int)s.size() - 2 * cnt[i][i+1] - 1);
     }
     return res;
   }
