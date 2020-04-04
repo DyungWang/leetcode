@@ -11,28 +11,24 @@ class Solution {
     //    dp[i][j] = -1
     // j >= 1:
     //    for each a in i -> jobD.len:
-    //       max(jobD[i:a]) + dp[a][j-1]
-    if (jobDifficulty.size() < d) 
-      return -1;
-
+    //       max(jobD[i:a]) + dp[a][j-1
     vector<vector<int>> dp(jobDifficulty.size(), vector<int>(d+1, 0));
-    
-    for (int i = 0; i < jobDifficulty.size(); ++i) dp[i][0] = -1;
+    vector<int> md(jobDifficulty.size(), 0);
 
+    for (int i = 0; i < jobDifficulty.size(); ++i) dp[i][0] = -1;
     for (int i = jobDifficulty.size() - 1; i >= 0; --i) {
       for (int j = 1; j <= d; ++j) {
         if (jobDifficulty.size() - i < j) {
           dp[i][j] = -1;
           continue;
         }
-        int maxj = jobDifficulty[i];
+        md[i] = jobDifficulty[i];
+        for (int a = i+1; a < jobDifficulty.size(); ++a)
+          md[a] = max(md[a-1], jobDifficulty[a]);
         dp[i][j] = INT32_MAX;
-        for (int a = i+1; a < jobDifficulty.size(); ++a) {
-          if (dp[a][j-1] != -1)
-            dp[i][j] = min(dp[i][j], maxj+dp[a][j-1]);
-          maxj = max(maxj, jobDifficulty[a]);
-        }
-        if (dp[i][j] == INT32_MAX) dp[i][j] = maxj;
+        for (int a = i+1; a < jobDifficulty.size(); ++a) if (dp[a][j-1] != -1) 
+          dp[i][j] = min(dp[i][j], md[a-1]+dp[a][j-1]);
+        if (j == 1) dp[i][j] = md.back();
       }
     }
     return dp[0][d];
@@ -48,11 +44,13 @@ struct TestCase {
 TestCase case1 = { { 1, 1, 1 }, 3, 3 };
 TestCase case2 = { { 7, 1, 7, 1, 7, 1 }, 3, 15 };
 TestCase case3 = { { 11, 111, 22, 222, 33, 333, 44, 444 }, 6, 843 };
+TestCase case4 = { { 1, 1, 1 }, 4, -1 };
 
 int main(int, char**) {
   Solution solution;
   assert(solution.minDifficulty(case1.difficulty, case1.days) == case1.result);
   assert(solution.minDifficulty(case2.difficulty, case2.days) == case2.result);
   assert(solution.minDifficulty(case3.difficulty, case3.days) == case3.result);
+  assert(solution.minDifficulty(case4.difficulty, case4.days) == case4.result);
   return 0;
 }
