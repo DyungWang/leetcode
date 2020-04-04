@@ -16,17 +16,17 @@ class Solution {
   }
  
  private:
-  unordered_map<int, vector<int>> buildTree(const vector<int>& manager) {
-    unordered_map<int, vector<int>> tree;
+  vector<vector<int>> buildTree(const vector<int>& manager) {
+    vector<vector<int>> tree(manager.size());
     for (int i = 0; i < (int)manager.size(); ++i) {
+      if (manager[i] == -1) 
+        continue;
       tree[manager[i]].push_back(i);
     }
     return tree;
   }
 
-  int backVist(const unordered_map<int, vector<int>>& tree, const vector<int>& informTime, int i) {
-    if (tree.count(i) == 0) 
-      return informTime[i];
+  int backVist(const vector<vector<int>>& tree, const vector<int>& informTime, int i) {
     int time = 0;
     for (auto j : tree.at(i))
       time = max(time, backVist(tree, informTime, j));
