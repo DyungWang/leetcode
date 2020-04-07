@@ -7,39 +7,38 @@ using namespace std;
 class Solution {
  public:
   int maxSumTwoNoOverlap(vector<int>& A, int L, int M) {
-    // sumv[a][b]: sum(A[a:b])
-    // maxv[a+b][c]: max(sumv(j:j+c)) where j>=a+b
-    // dp[a][b][c]: sumv[a:b] + maxv[a+b][c]
-    auto sumv = initSumv(A);
-    auto maxv = initMaxv(sumv);
+    // sumL[a] = sum(A[a:a+L])
+    // maxL[a] = max(sumL[a::])
+    // sumM[a] = sum(A[a:a+M])
+    // maxM[a] = max(sumM[a::]) 
+    // tsum[a] = max(sumL[a]+maxM[a+L], sumM[a]+maxL[a+M])
+    // res = max(tsum[::])
+    auto sumL = initSumv(A, L);
+    auto sumM = initSumv(A, M);
+    auto maxL = initMaxv(sumL);
+    auto maxM = initMaxv(sumM);
     int res = 0;
-    for (int a = A.size()-1; a >= 0; --a) {
-      if (a+L+M <= A.size()) {
-        res = max(res, sumv[a][a+L-1] + maxv[a+L][M]);
-        res = max(res, sumv[a][a+M-1] + maxv[a+M][L]);
-      }
+    for (int i = 0; i+L+M <= A.size(); ++i) {
+      res = max(res, sumL[i]+maxM[i+L]);
+      res = max(res, sumM[i]+maxL[i+M]);
     }
     return res;
   }
  
  private:
-  vector<vector<int>> initSumv(const vector<int>& A) {
-    vector<vector<int>> sumv(A.size()+1, vector<int>(A.size()+1, 0));
-    for (int i = A.size()-1; i >= 0; --i) {
-      for (int j = A.size()-1; j >= i; --j) {
-        sumv[i][j] = sumv[i+1][j] + A[i];
-      }
-    }
+  vector<int> initSumv(const vector<int>& A, int l) {
+    vector<int> sumv(A.size()+1, 0);
+    for (int i = 0; i < l; ++i)
+      sumv[0] += A[i];
+    for (int i = 1; i <= A.size()-l; ++i)
+      sumv[i] = sumv[i-1] - A[i-1] + A[i+l-1];
     return sumv;
   }
 
-  vector<vector<int>> initMaxv(const vector<vector<int>>& sumv) {
-    vector<vector<int>> maxv(sumv.size()+1, vector<int>(sumv.size()+1, 0));
-    for (int i = sumv.size()-1; i >= 0; --i) {
-      for (int j = 1; i+j < sumv.size(); ++j) {
-        maxv[i][j] = max(maxv[i+1][j], sumv[i][i+j-1]); 
-      }
-    }
+  vector<int> initMaxv(const vector<int>& S) {
+    vector<int> maxv(S.size()+1, 0);
+    for (int i = S.size()-1; i >= 0; --i) 
+      maxv[i] = max(maxv[i+1], S[i]);
     return maxv;
   }
 };
