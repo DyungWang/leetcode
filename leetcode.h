@@ -5,6 +5,7 @@
 
 #include <algorithm>
 #include <vector>
+#include <string>
 
 struct ListNode {
   int val;
@@ -41,10 +42,27 @@ std::vector<int> listToVector(ListNode* head) {
   return vals;
 }
 
-
-
 bool equal(const std::vector<int>& arr1, const std::vector<int>& arr2) {
   if (arr1.size() != arr2.size())
     return false;
   return equal(arr1.begin(), arr1.end(), arr2.begin());
 }
+
+bool equal(const std::vector<std::string>& arr1, const std::vector<std::string>& arr2) {
+  if (arr1.size() != arr2.size())
+    return false;
+  return equal(arr1.begin(), arr1.end(), arr2.begin());
+}
+
+template<class T>
+bool equal(
+    const std::vector<std::vector<T>>& arr1, 
+    const std::vector<std::vector<T>>& arr2) {
+  if (arr1.size() != arr2.size())
+    return false;
+  for (size_t i = 0; i < arr1.size(); ++i)
+    if (!equal(arr1[i], arr2[i]))
+      return false;
+  return true;
+}
+
