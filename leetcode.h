@@ -7,6 +7,8 @@
 #include <vector>
 #include <string>
 
+// for list ----------------------------------------------------------------------
+
 struct ListNode {
   int val;
   ListNode* next;
@@ -41,6 +43,50 @@ std::vector<int> listToVector(ListNode* head) {
   }
   return vals;
 }
+
+// for tree ---------------------------------------------------------------------
+
+struct TreeNode {
+  int val;
+  TreeNode* left;
+  TreeNode* right;
+  TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+};
+
+TreeNode* createTree(const std::vector<std::string>& preOrder, size_t& s) {
+  if (s == preOrder.size()) 
+    return nullptr;
+  if (preOrder[s] == "#") 
+    return nullptr;
+  TreeNode* node = new TreeNode(std::stoi(preOrder[s]));
+  node->left = createTree(preOrder, ++s);
+  node->right = createTree(preOrder, ++s);
+  return node;
+}
+
+TreeNode* createTree(const std::vector<std::string>& preOrder) {
+  size_t s = 0;
+  return createTree(preOrder, s);
+}
+
+void freeTree(TreeNode* root) {
+  if (root == nullptr) return;
+  freeTree(root->left);
+  freeTree(root->right);
+  delete root;
+}
+
+void treePreOrder(TreeNode* root, std::vector<std::string>& preOrder) {
+  if (root == nullptr) {
+    preOrder.push_back("#");
+    return;
+  }
+  preOrder.push_back(std::to_string(root->val));
+  treePreOrder(root->left, preOrder);
+  treePreOrder(root->right, preOrder);
+}
+
+// for test ---------------------------------------------------------------------
 
 bool equal(const std::vector<int>& arr1, const std::vector<int>& arr2) {
   if (arr1.size() != arr2.size())
