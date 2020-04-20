@@ -7,6 +7,7 @@
 #include <string>
 #include <unordered_map>
 #include <queue>
+#include <set>
 #include "leetcode.h"
 
 using namespace std;
@@ -14,86 +15,69 @@ using namespace std;
 class Solution {
  public:
   vector<vector<string>> findLadders(string beginWord, string endWord, vector<string>& wordList) {
-    wordList.push_back(beginWord);
-    vector<vector<int>> nextMap;
+    unordered_map<string, vector<string>> nextMap;
     vector<vector<string>> paths;
     vector<string> path;
-    initNextMap(wordList, &nextMap);
-    int minLength = findMinLength(endWord, wordList, nextMap);
-    if (minLength == 0)
-      return paths;
-    path = vector<string>(minLength);
-    findMinPath(endWord, wordList, nextMap, wordList.size()-1, minLength, path, &paths);
+    int minLength = findMinLength(beginWord, endWord, wordList, &nextMap);
+    if (minLength != 0) {
+      path.reserve(minLength);
+      path.push_back(beginWord);
+      findMinPaths(minLength, endWord, path, nextMap, &paths);
+    }
     return paths;
   }
  
  private:
-  inline void initNextMap(vector<string>& wordList, vector<vector<int>>* nextMap) {
-    nextMap->resize(wordList.size());
-    unordered_map<string, int> wordIndex;
-    for (int i = 0; i < wordList.size(); ++i) {
-      wordIndex[wordList[i]] = i;
-      nextMap->at(i).reserve(wordList.size());
-    }
-    for (int i = 0; i < wordList.size(); ++i) {
-      string& word = wordList[i];
-      for (int j = 0; j < word.size(); ++j) {
-        char c = word[j];
-        for (int k = 0; k < 26; ++k) {
-          word[j] = 'a' + k;
-          if (word[j] == c) 
-            continue;
-          auto iter = wordIndex.find(word);
-          if (iter != wordIndex.end()) nextMap->at(i).push_back(iter->second);
+  inline void findNext(set<string>& words, string& word, vector<string>* nexts) {
+    for (size_t i = 0; i < word.size(); ++i) {
+      char c = word[i];
+      for (char n = 'a'; n <= 'z'; ++n) {
+        word[i] = n;
+        if (words.count(word) != 0) {
+          nexts->push_back(word);
         }
-        word[j] = c;
       }
+      word[i] = c;
     }
   }
 
   inline int findMinLength(
-      string& endWord, 
-      vector<string>& wordList, 
-      vector<vector<int>>& nextMap) {
-    vector<int> visited(wordList.size(), 0);
-    queue<int> tovisit;
-    tovisit.push(wordList.size()-1);
-    visited.back() = 1;
+      string& beginWord, string& endWord, vector<string>& wordList, 
+      unordered_map<string, vector<string>>* nextMap) {
+    set<string> words(wordList.begin(), wordList.end());
+    queue<string> que; que.push(beginWord);
     int ret = 1;
-    while (!tovisit.empty()) {
-      int len = tovisit.size();
+    while (!que.empty()) {
+      int len = que.size();
       for (int i = 0; i < len; ++i) {
-        int c = tovisit.front(); tovisit.pop();
-        if (wordList[c] == endWord)
+        auto word = que.front(); que.pop();
+        if (word == endWord)
           return ret;
-        for (int n : nextMap[c]) {
-          if (!visited[n]) 
-            tovisit.push(n);
-          visited[n] = 1;
-        }
+        auto& next = (*nextMap)[word];
+        words.erase(word);
+        findNext(words, word, &next);
+        for (auto& n : next) que.push(n);
       }
       ret++;
     }
     return 0;
   }
 
-  inline void findMinPath(
-      string& endWord, 
-      vector<string>& wordList, 
-      vector<vector<int>>& nextMap,
-      int startPos,
+  inline void findMinPaths(
       int minLength,
+      string& endWord, 
       vector<string>& path,
+      unordered_map<string, vector<string>>& nextMap,
       vector<vector<string>>* paths) {
-    if (minLength == 0) 
-      return;
-    path[path.size() - minLength] = wordList[startPos];
-    if (wordList[startPos] == endWord) {
-      paths->push_back(path);
+    if (minLength == path.size()) {
+      if (path.back() == endWord)
+        paths->push_back(path);
       return;
     }
-    for (int n : nextMap[startPos]) {
-      findMinPath(endWord, wordList, nextMap, n, minLength-1, path, paths);
+    for (auto& next: nextMap[path.back()]) {
+      path.push_back(next);
+      findMinPaths(minLength, endWord, path, nextMap, paths);
+      path.pop_back();
     }
   }
 };
