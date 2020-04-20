@@ -21,8 +21,8 @@ class Solution {
     initNextMap(wordList, &nextMap);
     int minLength = findMinLength(endWord, wordList, nextMap);
     if (minLength == 0)
-      return  {};
-    path.push_back(beginWord);
+      return paths;
+    path = vector<string>(minLength);
     findMinPath(endWord, wordList, nextMap, wordList.size()-1, minLength, path, &paths);
     return paths;
   }
@@ -31,8 +31,10 @@ class Solution {
   inline void initNextMap(vector<string>& wordList, vector<vector<int>>* nextMap) {
     nextMap->resize(wordList.size());
     unordered_map<string, int> wordIndex;
-    for (int i = 0; i < wordList.size(); ++i) 
+    for (int i = 0; i < wordList.size(); ++i) {
       wordIndex[wordList[i]] = i;
+      nextMap->at(i).reserve(wordList.size());
+    }
     for (int i = 0; i < wordList.size(); ++i) {
       string& word = wordList[i];
       for (int j = 0; j < word.size(); ++j) {
@@ -56,6 +58,7 @@ class Solution {
     vector<int> visited(wordList.size(), 0);
     queue<int> tovisit;
     tovisit.push(wordList.size()-1);
+    visited.back() = 1;
     int ret = 1;
     while (!tovisit.empty()) {
       int len = tovisit.size();
@@ -63,9 +66,10 @@ class Solution {
         int c = tovisit.front(); tovisit.pop();
         if (wordList[c] == endWord)
           return ret;
-        visited[c] = 1;
         for (int n : nextMap[c]) {
-          if (!visited[n]) tovisit.push(n);
+          if (!visited[n]) 
+            tovisit.push(n);
+          visited[n] = 1;
         }
       }
       ret++;
@@ -78,18 +82,18 @@ class Solution {
       vector<string>& wordList, 
       vector<vector<int>>& nextMap,
       int startPos,
-      int minLenth,
+      int minLength,
       vector<string>& path,
       vector<vector<string>>* paths) {
-    if (minLenth <= 1) {
-      if (path.back() == endWord)
-        paths->push_back(path);
+    if (minLength == 0) 
+      return;
+    path[path.size() - minLength] = wordList[startPos];
+    if (wordList[startPos] == endWord) {
+      paths->push_back(path);
       return;
     }
     for (int n : nextMap[startPos]) {
-      path.push_back(wordList[n]);
-      findMinPath(endWord, wordList, nextMap, n, minLenth-1, path, paths);
-      path.pop_back();
+      findMinPath(endWord, wordList, nextMap, n, minLength-1, path, paths);
     }
   }
 };
