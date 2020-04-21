@@ -49,9 +49,10 @@ class Solution {
     while (!todos.empty()) {
       if (todos.count(endWord) != 0)
         return ret;
+      for (auto& word: todos) 
+        words.erase(word);
       for (auto& word: todos) {
         auto& next = (*nextMap)[word];
-        words.erase(word);
         findNext(words, word, &next);
         nexts.insert(next.begin(), next.end());
       }
@@ -101,10 +102,21 @@ TestCase testCase1 = {
   }
 };
 
+TestCase testCase2 = {
+  "kiss",
+  "tusk",
+  { "miss","dusk","kiss","musk","tusk","diss","disk","sang","ties","muss" },
+  {
+    { "kiss","diss","disk","dusk","tusk" },
+    { "kiss","miss","muss","musk","tusk" }
+  }
+};
+
 #define TEST(testCase) assert(testCase.test());
 
 int main(int, char**) {
-  TEST(testCase1);
+  // TEST(testCase1);
+  TEST(testCase2);
   return 0;
 }
 
