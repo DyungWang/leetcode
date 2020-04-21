@@ -87,6 +87,12 @@ void treePreOrder(TreeNode* root, std::vector<std::string>& preOrder) {
 }
 
 // for test ---------------------------------------------------------------------
+template<class T>
+bool equal(const std::vector<T>& arr1, const std::vector<T>& arr2) {
+  if (arr1.size() != arr2.size())
+    return false;
+  return equal(arr1.begin(), arr1.end(), arr2.begin());
+}
 
 bool equal(const std::vector<int>& arr1, const std::vector<int>& arr2) {
   if (arr1.size() != arr2.size())
