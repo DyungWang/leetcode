@@ -44,29 +44,22 @@ class Solution {
     unordered_set<Node*> todos({node});
     while (!todos.empty()) {
       unordered_set<Node*> nexts;
-      for (auto oldNode : todos) {
-        oldNewMap[oldNode] = new Node(oldNode->val);
+      for (auto it = todos.begin(); it != todos.end(); it = todos.erase(it)) {
+        auto oldNode = *(it);
+        auto newNode = new Node(oldNode->val);
         for (auto oldNext : oldNode->neighbors) {
-          if (oldNewMap.count(oldNext) == 0)
+          if (todos.count(oldNext) != 0)
+            continue;
+          auto iter = oldNewMap.find(oldNext);
+          if (iter == oldNewMap.end()) {
             nexts.insert(oldNext);
+            continue;
+          }
+          auto newNext = iter->second;
+          newNode->neighbors.push_back(newNext);
+          newNext->neighbors.push_back(newNode);
         }
-      }
-      swap(todos, nexts);
-    }
-
-    
-    unordered_set<Node*> visit;
-    todos = { node };
-    while (!todos.empty()) {
-      unordered_set<Node*> nexts;
-      for (auto oldNode : todos) {
-        visit.insert(oldNode);
-        auto newNode = oldNewMap[oldNode];
-        for (auto oldNext : oldNode->neighbors) {
-          newNode->neighbors.push_back(oldNewMap[oldNext]);
-          if (visit.count(oldNext) == 0 && todos.count(oldNext) == 0)
-            nexts.insert(oldNext);
-        }
+        oldNewMap[oldNode] = newNode;
       }
       swap(todos, nexts);
     }
