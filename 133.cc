@@ -34,32 +34,32 @@ class Node {
 class Solution {
  public:
   Node* cloneGraph(Node* node) {
-    if (node == nullptr) return nullptr;
     return bfsClone(node);
   }
  
  private:
   Node* bfsClone(Node* node) {
-    unordered_map<Node*, Node*> oldNewMap;
+    if (node == nullptr) return nullptr;
+    unordered_map<Node*, Node*> oldNewMap = { {node, new Node(node->val)} };
+    unordered_set<Node*> visit;
     unordered_set<Node*> todos({node});
     while (!todos.empty()) {
       unordered_set<Node*> nexts;
-      for (auto it = todos.begin(); it != todos.end(); it = todos.erase(it)) {
-        auto oldNode = *(it);
-        auto newNode = new Node(oldNode->val);
+      for (auto oldNode : todos) {
+        auto newNode = oldNewMap[oldNode];
         for (auto oldNext : oldNode->neighbors) {
-          if (todos.count(oldNext) != 0)
+          if (nexts.count(oldNext) != 0) 
             continue;
           auto iter = oldNewMap.find(oldNext);
           if (iter == oldNewMap.end()) {
             nexts.insert(oldNext);
+            oldNewMap[oldNext] = new Node(oldNext->val);
             continue;
           }
-          auto newNext = iter->second;
-          newNode->neighbors.push_back(newNext);
-          newNext->neighbors.push_back(newNode);
+          newNode->neighbors.push_back(iter->second);
+          if (todos.count(oldNext) == 0) 
+            iter->second->neighbors.push_back(newNode);
         }
-        oldNewMap[oldNode] = newNode;
       }
       swap(todos, nexts);
     }
@@ -91,7 +91,7 @@ Node* testCase2() {
 
 int main(int, char**) {
   Solution solution;
-  // solution.cloneGraph(testCase1());
-  Node* res = solution.cloneGraph(testCase2());
+  Node* res1 = solution.cloneGraph(testCase1());
+  Node* res2 = solution.cloneGraph(testCase2());
   return 0;
 }
