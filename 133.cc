@@ -34,7 +34,8 @@ class Node {
 class Solution {
  public:
   Node* cloneGraph(Node* node) {
-    return bfsClone(node);
+    // return bfsClone(node);
+    return dfsClone(node);
   }
  
  private:
@@ -64,6 +65,31 @@ class Solution {
       swap(todos, nexts);
     }
     return oldNewMap[node];
+  }
+
+  Node* dfsClone(Node* node) {
+    if (node == nullptr) return nullptr;
+    unordered_map<Node*, Node*> oldNewMap;
+    unordered_set<Node*> visited;
+    dfsClone(node, oldNewMap, visited);
+    return oldNewMap[node];
+  }
+
+  void dfsClone(Node* oldNode, unordered_map<Node*, Node*>& oldNewMap, unordered_set<Node*>& visited) {
+    if (visited.count(oldNode) != 0)
+      return;
+    visited.insert(oldNode);
+    auto newNode = new Node(oldNode->val);
+    oldNewMap[oldNode] = newNode;
+    for (auto oldNext : oldNode->neighbors) {
+      auto iter = oldNewMap.find(oldNext);
+      if (iter != oldNewMap.end()) {
+        auto newNext = iter->second;
+        newNode->neighbors.push_back(newNext);
+        newNext->neighbors.push_back(newNode);
+      }
+    }
+    for (auto oldNext : oldNode->neighbors) dfsClone(oldNext, oldNewMap, visited);
   }
 };
 
