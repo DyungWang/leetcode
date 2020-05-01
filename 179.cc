@@ -13,33 +13,24 @@ class Solution {
  public:
   string largestNumber(vector<int>& nums) {
     vector<string> strs; strs.reserve(nums.size());
-    for (auto n : nums) 
-      strs.push_back(to_string(n));
+    for (auto n : nums) strs.push_back(to_string(n));
+      
     sort(strs.begin(), strs.end(), [](string& qstr, string& pstr) {
-      int i = 0;
-      while (i < qstr.size() || i < pstr.size()) {
-        if (qstr[i % qstr.size()] > pstr[i % pstr.size()])
-          return true;
-        if (qstr[i % qstr.size()] < pstr[i % pstr.size()])
-          return false;
-        i++
-      }
-      return false;
+      return qstr + pstr > pstr + qstr;
     });
-
+    if (strs[0] == "0") 
+      return strs[0];
     return merge(strs);
   }
 
  private:
-  string merge(vector<string>& strs) {
-    int len = 0;
-    for (auto& s : strs) 
-      len += s.size();
+  inline string merge(vector<string>& strs) {
+    int len = 0; for (auto& s : strs) len += s.size();
 
     string res(len, ' ');
     char* data = &res[0];
     for (auto& s : strs) {
-      memcpy(data, s.data(), sizeof(char) * s.size());
+      strcpy(data, s.data());
       data += s.size();
     }
     return res;
