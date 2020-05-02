@@ -2,7 +2,7 @@
 // @created 2020/05/02
 // @link https://leetcode.com/problems/repeated-dna-sequences/
 
-#include <unordered_set>
+#include <unordered_map>
 #include <string>
 #include <vector>
 #include "leetcode.h"
@@ -12,26 +12,36 @@ using namespace std;
 class Solution {
  public:
   vector<string> findRepeatedDnaSequences(string s) {
-    unordered_set<string> occured;
-    unordered_set<string> repeated;
-    for (int i = 0; i <= (int)s.size() - 10; ++i) {
-      auto sub = s.substr(i, 10);
-      if (occured.count(sub) != 0)
-        repeated.emplace(sub);
-      else {
-        occured.emplace(sub);
-      }
+    unordered_map<int, int> occured;
+    vector<string> repeated;
+    int mask = (1 << 20) - 1;
+    int v = 0;
+    for (int i = 0; i < 10; ++i)
+      v = (v << 2) | charToInt(s[i]);
+    occured[v] = 1;
+    for (int i = 10; i < (int)s.size(); ++i) {
+      v = ((v << 2) | charToInt(s[i])) & mask;
+      if (++occured[v] == 2)
+        repeated.emplace_back(s.substr(i-9, 10));
     }
-    return { repeated.begin(), repeated.end() };
+    return repeated;
   }
+ 
+ private:
+  inline int charToInt(char c) {
+    if (c == 'A') return 0;
+    if (c == 'C') return 1;
+    if (c == 'G') return 2;
+    return 3;
+  } 
 };
 
 struct TestCase {
   string s;
-  unordered_set<string> r;
+  vector<string> r;
 
   bool test() { 
-    vector<string> r(this->r.begin(), this->r.end());
+    // vector<string> r(this->r.begin(), this->r.end());
     return equal(r, Solution().findRepeatedDnaSequences(s)); 
   }
 };
