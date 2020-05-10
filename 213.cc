@@ -16,19 +16,24 @@ class Solution {
     if (len == 1) return nums[0];
     if (len == 2) return max(nums[0], nums[1]);
     
-    vector<int> dp(nums.size(), 0);
-    dp[1] = nums[1];
-    dp[2] = max(nums[1], nums[2]);
-    for (int i = 2; i < len; ++i)
-      dp[i] = max(nums[i]+dp[i-2], dp[i-1]);
+    int dpp = max(nums[1], 0);
+    int dpm = max(nums[2], nums[1]);
+    int dpc = dpm;
+    for (int i = 3; i < len; ++i) {
+      dpc = max(dpp + nums[i], dpm);
+      dpp = dpm;
+      dpm = dpc;
+    }
 
-    vector<int> np(nums.size(), 0);
-    np[len-2] = nums[len-2];
-    np[len-3] = max(nums[len-2], nums[len-3]);
-    for (int i = len-4; i >= 0; --i)
-      np[i] = max(nums[i]+np[i+2], np[i+1]);
-
-    return max(dp[len-1], np[0]);
+    int npp = max(nums[len-2], 0);
+    int npm = max(nums[len-3], nums[len-2]);
+    int npc = npm;
+    for (int i = len-4; i >= 0; --i) {
+      npc = max(npp + nums[i], npm);
+      npp = npm;
+      npm = npc;
+    }
+    return max(dpc, npc);
   }
 };
 
