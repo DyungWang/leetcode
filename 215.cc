@@ -11,9 +11,11 @@ using namespace std;
 class Solution {
  public:
   int findKthLargest(vector<int>& nums, int k) {
-    auto iter = nums.begin() + nums.size() - k;
-    nth_element(nums.begin(), iter, nums.end());
-    return *iter;
+    make_heap(nums.begin(), nums.end());
+    int len = nums.size();
+    while (--k > 0)
+      pop_heap(nums.begin(), nums.begin() + len--);
+    return nums[0];
   }
 };
 
