@@ -11,29 +11,27 @@ class Solution {
   typedef vector<int>::iterator Iter;
  public:
   int findKthLargest(vector<int>& nums, int k) {
-    return findKthLargest(nums, 0, nums.size(), k);
+    return findKthLargest(nums.begin(), nums.end(), k);
   }
 
  private:
-  int findKthLargest(vector<int>& nums, int b, int e, int k) {
-    if (b >= e) return -1; // error
-    if (k == 0 || k > e-b) return -1; // error
-    int l = b, r = e - 1;
+  int findKthLargest(Iter begin, Iter end, int k) {
+    Iter l = begin, r = end - 1;
     while (l < r) {
-      while (nums[r]  > nums[b] && l < r) --r;
-      while (nums[l] <= nums[b] && l < r) ++l;
-      swap(nums[l], nums[r]);
+      while (*r >  *begin && l < r) --r;
+      while (*l <= *begin && l < r) ++l;
+      swap(*l, *r);
     }
-    if (nums[r] < nums[b]) swap(nums[r], nums[b]);
+    if (*r < *begin) swap(*r, *begin);
 
-    int t = e - r; 
-    if (t == k) return nums[r];
+    int t = end - r; 
+    if (t == k) return *r;
     if (t <  k) 
-      return findKthLargest(nums, b, r, k-t);
-    return findKthLargest(nums, r+1, e, k);
+      return findKthLargest(begin, r, k-t);
+    return findKthLargest(r+1, end, k);
   }
 };
-d
+
 struct TestCase {
   vector<int> nums;
   int k;
@@ -56,7 +54,7 @@ TestCase testCase3 = {
 
 int main(int, char**) {
 #define TEST(testCase) assert(testCase.test())
-  TEST(testCase1);
+  // TEST(testCase1);
   TEST(testCase2);
   TEST(testCase3);
 #undef TEST
