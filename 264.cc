@@ -9,17 +9,20 @@
 using namespace std;
 
 class Solution {
+  #define tmin(x, y, z) min(x, min(y, z))
  public:
   int nthUglyNumber(int n) {
-    vector<int64_t> nums;
-    for (int64_t a = 1; a <= INT_MAX; a *= 5) {
-      for (int64_t b = a; b <= INT_MAX; b *= 3) {
-        for (int64_t c = b; c <= INT_MAX; c *= 2) {
-          nums.push_back(c);
-        }
-      }
+    if (n <= 0) return 0;
+    if (n == 1) return 1;
+    vector<int> nums(n);
+    nums[0] = 1;
+    int p2 = 0, p3 = 0, p5 = 0;
+    for (int i = 1; i < n; ++i) {
+      nums[i] = tmin(nums[p2]*2, nums[p3]*3, nums[p5]*5);
+      if (nums[i] == nums[p2]*2) p2++;
+      if (nums[i] == nums[p3]*3) p3++;
+      if (nums[i] == nums[p5]*5) p5++;
     }
-    sort(nums.begin(), nums.end());
     return nums[n-1];
   }
 };
