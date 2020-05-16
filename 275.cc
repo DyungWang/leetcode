@@ -10,14 +10,11 @@ class Solution {
  public:
   int hIndex(vector<int>& citations) {
     int n = citations.size();
-    int l = 0, r = n, m = 0;
-    while (l < r) {
-      m = (l + r) / 2;
-      if (citations[m] >= n-m)
-        r = m;
-      else l = m+1;
-    }
-    return n - r;
+    int m = n;
+    for (int i = 0; i < n; ++i, --m)
+      if (citations[i] >= m)
+        return m;
+    return 0;
   }
 };
 
