@@ -4,18 +4,18 @@
 
 #include <algorithm>
 #include <vector>
+#include <queue>
 
 using namespace std;
 
 class Solution {
  public:
   int hIndex(vector<int>& citations) {
-    int len = citations.size();
-    int idx = len;
-    sort(citations.begin(), citations.end());
-    for (int i = 0; i < len; ++i) {
-      if (citations[i] >= idx)
-        return idx;
+    priority_queue<int, vector<int>, greater<int>> 
+      que(citations.begin(), citations.end()); 
+    int idx = citations.size();
+    while (!que.empty() && que.top() < idx) {
+      que.pop();
       --idx;
     }
     return idx;
