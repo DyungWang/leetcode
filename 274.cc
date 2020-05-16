@@ -11,14 +11,16 @@ using namespace std;
 class Solution {
  public:
   int hIndex(vector<int>& citations) {
-    priority_queue<int, vector<int>, greater<int>> 
-      que(citations.begin(), citations.end()); 
-    int idx = citations.size();
-    while (!que.empty() && que.top() < idx) {
-      que.pop();
-      --idx;
+    int n = citations.size();
+    vector<int> buckets(n+2, 0);
+    for (auto c : citations)
+      c >= n ? buckets[n]++ : buckets[c]++;
+    for (int i = n; i >= 0; --i) {
+      buckets[i] += buckets[i+1];
+      if (buckets[i] >= i) 
+        return i;
     }
-    return idx;
+    return 0;
   }
 };
 
