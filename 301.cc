@@ -20,33 +20,31 @@ class Solution {
       if (c == ')' && lcnt >  0) lcnt--; 
     }
     unordered_set<string> res;
-    dfs(s, 0, lcnt, rcnt, 0, "", res);
+    string r; r.reserve(s.size());
+    dfs(s, 0, lcnt, rcnt, 0, r, res);
     return { res.begin(), res.end() };
   }
  
  private:
-  void dfs(string& s, int i, int lcnt, int rcnt, int pair, string r, unordered_set<string>& res) {
+  void dfs(string& s, int i, int lcnt, int rcnt, int pair, string& r, unordered_set<string>& res) {
     if (i == s.size()) {
       if (lcnt == 0 && rcnt == 0 && pair == 0) 
         res.insert(r);
       return;
     }
-    if (s[i] != ')' && s[i] != '(') {
-      dfs(s, i+1, lcnt, rcnt, pair, r+s[i], res);
-      return;
-    } 
-
-    if (s[i] == '(') {
-      if (lcnt > 0)
-        dfs(s, i+1, lcnt-1, rcnt, pair, r, res);
-      dfs(s, i+1, lcnt, rcnt, pair+1, r+s[i], res);
-    } 
-    if (s[i] == ')') {
-      if (rcnt > 0)
-        dfs(s, i+1, lcnt, rcnt-1, pair, r, res);
-      if (pair > 0)
-        dfs(s, i+1, lcnt, rcnt, pair-1, r+s[i], res);
-    }
+    if (s[i] == '(' && lcnt > 0)
+      dfs(s, i+1, lcnt-1, rcnt, pair, r, res);
+    if (s[i] == ')' && rcnt > 0)
+      dfs(s, i+1, lcnt, rcnt-1, pair, r, res);
+    
+    r.push_back(s[i]);
+    if (s[i] != '(' && s[i] != ')')
+      dfs(s, i+1, lcnt, rcnt, pair, r, res);
+    else if (s[i] == '(')
+      dfs(s, i+1, lcnt, rcnt, pair+1, r, res);
+    else if (pair > 0)
+      dfs(s, i+1, lcnt, rcnt, pair-1, r, res);
+    r.pop_back();
   }
 };
 
