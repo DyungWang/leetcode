@@ -12,51 +12,44 @@ using namespace std;
 
 class Solution {
  public:
-  vector<string> addOperatorsWorker(vector<int>::const_iterator I,
-                                  vector<int>::const_iterator E,
-                                  const int64_t target, const char lowOpr,
-                                  const int64_t low, const int64_t high) {
-    vector<string> results;
-    int64_t n = 0;
-    for (auto i = I; i < E; ++i) {
-      // Prevent "00...0" and "0x..x":
-      if (i != I && *I == 0)
-        continue;
-
-      n = n * 10LL + *i;
-      int64_t k = (lowOpr == '+') ? (low + n * high) : (low - n * high);
-      if (i == E - 1) {
-        if (target == k)
-          results.push_back(to_string(n));
-      } else {
-        // For +/-, compute the current accumulated result.
-        // Reset the high-precedence operand.
-        for (auto &&r : addOperatorsWorker(i + 1, E, target, '+', k, 1))
-          results.push_back(to_string(n) + '+' + r);
-        for (auto &&r : addOperatorsWorker(i + 1, E, target, '-', k, 1))
-          results.push_back(to_string(n) + '-' + r);
-
-        // For multiplication, just carry over low-precedence accumulated result.
-        // But, compute the hig-precedence operand now.
-        for (auto &&r : addOperatorsWorker(i + 1, E, target, lowOpr, low, n * high))
-          results.push_back(to_string(n) + '*' + r);
-      }
-    }
-
-    return results;
-  }
-
   vector<string> addOperators(string num, int target) {
     if (num.length() == 0)
       return {};
+    vector<string> res;
+    string r; 
+    r.reserve(num.size()*2);
+    dfs(num, 0, target, 0, 0, r, res);
+    return res;
+  }
+ 
+ private:
+  void dfs(string& num, int i, int t, int64_t s, int64_t p, string& r, vector<string>& res) {
+    if (i == num.size()) {
+      if (s == t)
+        res.push_back(r);
+      return;
+    }
 
-    // Expand to a digit vector.
-    vector<int> N;
-    for (char c : num)
-      N.push_back(c - '0');
-
-    // "+ 0" and "* 1" for the starting condition; doesn't alter the value.
-    return addOperatorsWorker(N.cbegin(), N.cend(), target, '+', 0, 1);
+    int64_t n = 0;
+    int64_t q = r.size();
+    if (i != 0) r.push_back('+');
+    for (int j = i; j < num.size(); ++j) {
+      r.push_back(num[j]);
+      n = n * 10 + num[j] - '0';
+      if (i != j && num[i] == '0')
+        break;
+      if (i == 0) {
+        dfs(num, j+1, t, s+n, n, r, res);
+        continue;
+      }
+      r[q] = '+';
+      dfs(num, j+1, t, s+n, n, r, res);
+      r[q] = '-';
+      dfs(num, j+1, t, s-n, -n, r, res);
+      r[q] = '*';
+      dfs(num, j+1, t, s-p+p*n, p*n, r, res);
+    }
+    while (r.size() > q) r.pop_back();
   }
 };
 
@@ -87,9 +80,9 @@ TestCase testCase4 = {
 
 int main(int, char**) {
   #define TEST(testCase) assert(testCase.test())
-  // TEST(testCase1);
-  // TEST(testCase2);
-  // TEST(testCase3);
+  TEST(testCase1);
+  TEST(testCase2);
+  TEST(testCase3);
   TEST(testCase4);
   return 0;
 }
