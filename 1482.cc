@@ -11,34 +11,33 @@ using namespace std;
 class Solution {
  public:
   int minDays(vector<int>& bloomDay, int m, int k) {
-    if (m > bloomDay.size() / k) 
+    if (bloomDay.size() < (m * k)) 
       return -1;
-    multiset<int, greater<int>> win(bloomDay.begin(), bloomDay.begin()+k-1);
-    vector<int> waitDays(bloomDay.size()-k+1);
-    for (int i = 0; i < waitDays.size(); ++i) {
-      win.insert(bloomDay[i+k-1]);
-      waitDays[i] = *(win.begin());
-      win.erase(bloomDay[i]);
+    int r = 0; for (auto d : bloomDay) r = max(r, d);
+    int l = 0;
+    while (l < r) {
+      int t = (l + r) / 2;
+      if (isValid(bloomDay, m, k, t))
+        r = t;
+      else {
+        l = t + 1;
+      }
     }
-    vector<vector<int>> dp(waitDays.size(), vector<int>(m+1, -1));
-    return dfs(waitDays, dp, 0, m, k);
+    return r;
   }
 
  private:
-  int dfs(vector<int>& waitDays, vector<vector<int>>& dp, int s, int m, int k) {
-    if (m <= 0) return 0;
-    if (s >= waitDays.size()) return -1;
-    if (dp[s][m] >= 0) return dp[s][m];
-    int ans = -1;
-    int mwt = INT_MAX;
-    for (int i = s; i < waitDays.size(); ++i) {
-      mwt = min(mwt, waitDays[i]);
-      int tmp = dfs(waitDays, dp, i+k, m-1, k);
-      if (tmp < 0) continue;
-      tmp = max(tmp, mwt);
-      ans = ans < 0 ? tmp : min(ans, tmp);
+  bool isValid(vector<int>& bloomDay, int m, int k, int t) {
+    int w = 0;
+    for (auto d: bloomDay) {
+      if (d > t)
+        w = 0;
+      else if (++w >= k) {
+        w = 0;
+        if (--m <= 0) return true;
+      }
     }
-    return (dp[s][m] = ans);
+    return false;
   }
 };
 
@@ -65,14 +64,14 @@ TestCase testCase3 = {
 
 TestCase testCase4 = {
   {79,30,15,94,80,52,14,4,81,62,40,47,44,98,73,63,36,1,66,83,66,36,35,64,45,21,76,4,79,36,57,20,86,15,19},
-  35, 1, -1
+  35, 1, 98
 };
 
 int main(int, char**) {
   #define TEST(testCase) assert(testCase.test())
-  // TEST(testCase1);
-  // TEST(testCase2);
-  // TEST(testCase3);
+  TEST(testCase1);
+  TEST(testCase2);
+  TEST(testCase3);
   TEST(testCase4);
   return 0;
 }
